@@ -149,30 +149,30 @@
       </div>
     </el-card>
 
-    <!-- 新增/编辑对话框 -->
+    <!-- 新增对话框 -->
     <el-dialog
-      v-model="dialogVisible"
-      :title="dialogType === 'add' ? '新增学生' : '编辑学生'"
+      v-model="addDialogVisible"
+      title="新增学生"
       width="500px"
       :close-on-click-modal="false"
       destroy-on-close
     >
       <el-form
-        ref="formRef"
-        :model="form"
+        ref="addFormRef"
+        :model="addForm"
         :rules="rules"
         label-width="100px"
         class="dialog-form"
       >
         <el-form-item label="学号" prop="studentNumber">
-          <el-input v-model="form.studentNumber" placeholder="请输入学号" />
+          <el-input v-model="addForm.studentNumber" placeholder="请输入学号" />
         </el-form-item>
         <el-form-item label="姓名" prop="name">
-          <el-input v-model="form.name" placeholder="请输入姓名" />
+          <el-input v-model="addForm.name" placeholder="请输入姓名" />
         </el-form-item>
         <el-form-item label="性别" prop="gender">
           <el-select
-            v-model="form.gender"
+            v-model="addForm.gender"
             placeholder="请选择性别"
             style="width: 100%"
           >
@@ -182,11 +182,11 @@
           </el-select>
         </el-form-item>
         <el-form-item label="联系电话" prop="phone">
-          <el-input v-model="form.phone" placeholder="请输入联系电话" />
+          <el-input v-model="addForm.phone" placeholder="请输入联系电话" />
         </el-form-item>
         <el-form-item label="入学年份" prop="enrollmentYear">
           <el-date-picker
-            v-model="form.enrollmentYear"
+            v-model="addForm.enrollmentYear"
             type="year"
             placeholder="请选择入学年份"
             style="width: 100%"
@@ -195,7 +195,7 @@
         </el-form-item>
         <el-form-item label="所属学院" prop="collegeId">
           <el-select
-            v-model="form.collegeId"
+            v-model="addForm.collegeId"
             placeholder="请选择所属学院"
             style="width: 100%"
             @change="handleCollegeChange"
@@ -210,7 +210,7 @@
         </el-form-item>
         <el-form-item label="所属专业" prop="majorId">
           <el-select
-            v-model="form.majorId"
+            v-model="addForm.majorId"
             placeholder="请选择所属专业"
             style="width: 100%"
             @change="handleMajorChange"
@@ -225,7 +225,7 @@
         </el-form-item>
         <el-form-item label="所属班级" prop="classId">
           <el-select
-            v-model="form.classId"
+            v-model="addForm.classId"
             placeholder="请选择所属班级"
             style="width: 100%"
           >
@@ -239,7 +239,7 @@
         </el-form-item>
         <el-form-item label="学籍状态" prop="status">
           <el-select
-            v-model="form.status"
+            v-model="addForm.status"
             placeholder="请选择学籍状态"
             style="width: 100%"
           >
@@ -252,11 +252,85 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
+          <el-button @click="addDialogVisible = false">取消</el-button>
           <el-button
             type="primary"
             :loading="submitLoading"
-            @click="handleSubmit"
+            @click="handleAddSubmit"
+            >确定</el-button
+          >
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 编辑对话框 -->
+    <el-dialog
+      v-model="editDialogVisible"
+      title="编辑学生"
+      width="500px"
+      :close-on-click-modal="false"
+      destroy-on-close
+    >
+      <el-form
+        ref="editFormRef"
+        :model="editForm"
+        :rules="rules"
+        label-width="100px"
+        class="dialog-form"
+      >
+        <el-form-item label="学号" prop="studentNumber">
+          <el-input
+            v-model="editForm.studentNumber"
+            placeholder="请输入学号"
+            disabled
+          />
+        </el-form-item>
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="editForm.name" placeholder="请输入姓名" />
+        </el-form-item>
+        <el-form-item label="性别" prop="gender">
+          <el-select
+            v-model="editForm.gender"
+            placeholder="请选择性别"
+            style="width: 100%"
+          >
+            <el-option label="男" :value="Gender.MALE" />
+            <el-option label="女" :value="Gender.FEMALE" />
+            <el-option label="其他" :value="Gender.OTHER" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="联系电话" prop="phone">
+          <el-input v-model="editForm.phone" placeholder="请输入联系电话" />
+        </el-form-item>
+        <el-form-item label="入学年份" prop="enrollmentYear">
+          <el-date-picker
+            v-model="editForm.enrollmentYear"
+            type="year"
+            placeholder="请选择入学年份"
+            style="width: 100%"
+            value-format="YYYY"
+          />
+        </el-form-item>
+        <el-form-item label="学籍状态" prop="status">
+          <el-select
+            v-model="editForm.status"
+            placeholder="请选择学籍状态"
+            style="width: 100%"
+          >
+            <el-option label="在读" :value="StudentStatus.STUDYING" />
+            <el-option label="休学" :value="StudentStatus.SUSPENDED" />
+            <el-option label="退学" :value="StudentStatus.DROPPED" />
+            <el-option label="毕业" :value="StudentStatus.GRADUATED" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="editDialogVisible = false">取消</el-button>
+          <el-button
+            type="primary"
+            :loading="submitLoading"
+            @click="handleEditSubmit"
             >确定</el-button
           >
         </span>
@@ -315,12 +389,13 @@ const majorOptions = ref([]);
 const classOptions = ref([]);
 
 // 对话框相关
-const dialogVisible = ref(false);
-const dialogType = ref<"add" | "edit">("add");
-const formRef = ref<FormInstance>();
+const addDialogVisible = ref(false);
+const editDialogVisible = ref(false);
+const addFormRef = ref<FormInstance>();
+const editFormRef = ref<FormInstance>();
 
-// 表单数据
-const form = reactive<StudentForm>({
+// 新增表单数据
+const addForm = reactive<StudentForm>({
   studentNumber: "",
   name: "",
   gender: Gender.MALE,
@@ -329,6 +404,16 @@ const form = reactive<StudentForm>({
   collegeId: "",
   majorId: "",
   classId: "",
+  status: StudentStatus.STUDYING
+});
+
+// 编辑表单数据
+const editForm = reactive<StudentForm>({
+  studentNumber: "",
+  name: "",
+  gender: Gender.MALE,
+  phone: "",
+  enrollmentYear: new Date().getFullYear(),
   status: StudentStatus.STUDYING
 });
 
@@ -445,89 +530,104 @@ const handleCurrentChange = (val: number) => {
 
 // 新增学生
 const handleAdd = () => {
-  dialogType.value = "add";
-  form.studentNumber = "";
-  form.name = "";
-  form.gender = Gender.MALE;
-  form.phone = "";
-  form.enrollmentYear = new Date().getFullYear();
-  form.collegeId = "";
-  form.majorId = "";
-  form.classId = "";
-  form.status = StudentStatus.STUDYING;
-  dialogVisible.value = true;
+  addForm.studentNumber = "";
+  addForm.name = "";
+  addForm.gender = Gender.MALE;
+  addForm.phone = "";
+  addForm.enrollmentYear = new Date().getFullYear();
+  addForm.collegeId = "";
+  addForm.majorId = "";
+  addForm.classId = "";
+  addForm.status = StudentStatus.STUDYING;
+  addDialogVisible.value = true;
 };
 
 // 编辑学生
 const handleEdit = (row: StudentInfoVO) => {
-  dialogType.value = "edit";
-  form.studentNumber = row.studentNumber;
-  form.name = row.name;
-  form.gender = row.gender;
-  form.phone = row.phone || "";
-  form.enrollmentYear = row.enrollmentYear;
-  form.classId = row.classId;
-  form.status = row.status;
-  // 加载关联数据
-  if (row.collegeId) {
-    getMajorOptions(row.collegeId);
-  }
-  if (row.majorId) {
-    getClassOptions(row.majorId);
-  }
-  dialogVisible.value = true;
+  editForm.studentNumber = row.studentNumber;
+  editForm.name = row.name;
+  editForm.gender = row.gender;
+  editForm.phone = row.phone || "";
+  editForm.enrollmentYear = row.enrollmentYear;
+  editForm.status = row.status;
+  editDialogVisible.value = true;
 };
 
-// 提交表单
-const handleSubmit = async () => {
-  if (!formRef.value) return;
-  await formRef.value.validate(async valid => {
+// 提交新增表单
+const handleAddSubmit = async () => {
+  if (!addFormRef.value) return;
+  await addFormRef.value.validate(async valid => {
     if (valid) {
       submitLoading.value = true;
       try {
         const formData = {
-          studentNumber: form.studentNumber,
-          name: form.name.trim(),
-          gender: form.gender,
-          phone: form.phone?.trim() || null,
-          enrollmentYear: Number(form.enrollmentYear),
-          collegeId: form.collegeId,
-          majorId: form.majorId,
-          classId: form.classId,
-          status: form.status
+          studentNumber: addForm.studentNumber,
+          name: addForm.name.trim(),
+          gender: addForm.gender,
+          phone: addForm.phone?.trim() || null,
+          enrollmentYear: Number(addForm.enrollmentYear),
+          status: addForm.status,
+          collegeId: addForm.collegeId,
+          majorId: addForm.majorId,
+          classId: addForm.classId
         };
 
-        let res;
-        if (dialogType.value === "add") {
-          res = await addStudent(formData);
-        } else {
-          res = await updateStudent(formData);
-        }
+        const res = await addStudent(formData);
 
         if (res.code === 200) {
-          ElMessage.success(
-            dialogType.value === "add" ? "新增成功" : "更新成功"
-          );
-          dialogVisible.value = false;
+          ElMessage.success("新增成功");
+          addDialogVisible.value = false;
           getTableData();
         } else {
-          ElMessage.error(
-            res.msg || (dialogType.value === "add" ? "新增失败" : "更新失败")
-          );
+          ElMessage.error(res.msg || "新增失败");
         }
       } catch (error: any) {
-        console.error(
-          dialogType.value === "add" ? "新增学生失败:" : "更新学生失败:",
-          error
-        );
+        console.error("新增学生失败:", error);
         if (error.response?.data) {
           console.error("错误详情:", error.response.data);
-          ElMessage.error(
-            error.response.data.msg ||
-              (dialogType.value === "add" ? "新增失败" : "更新失败")
-          );
+          ElMessage.error(error.response.data.msg || "新增失败");
         } else {
-          ElMessage.error(dialogType.value === "add" ? "新增失败" : "更新失败");
+          ElMessage.error("新增失败");
+        }
+      } finally {
+        submitLoading.value = false;
+      }
+    }
+  });
+};
+
+// 提交编辑表单
+const handleEditSubmit = async () => {
+  if (!editFormRef.value) return;
+  await editFormRef.value.validate(async valid => {
+    if (valid) {
+      submitLoading.value = true;
+      try {
+        const formData = {
+          studentNumber: editForm.studentNumber,
+          name: editForm.name.trim(),
+          gender: editForm.gender,
+          phone: editForm.phone?.trim() || null,
+          enrollmentYear: Number(editForm.enrollmentYear),
+          status: editForm.status
+        };
+
+        const res = await updateStudent(formData);
+
+        if (res.code === 200) {
+          ElMessage.success("更新成功");
+          editDialogVisible.value = false;
+          getTableData();
+        } else {
+          ElMessage.error(res.msg || "更新失败");
+        }
+      } catch (error: any) {
+        console.error("更新学生失败:", error);
+        if (error.response?.data) {
+          console.error("错误详情:", error.response.data);
+          ElMessage.error(error.response.data.msg || "更新失败");
+        } else {
+          ElMessage.error("更新失败");
         }
       } finally {
         submitLoading.value = false;
@@ -606,6 +706,26 @@ const handleDelete = async (row: any) => {
     }
   } finally {
     row.deleteLoading = false;
+  }
+};
+
+// 处理学院选择变化
+const handleCollegeChange = async (collegeId: string) => {
+  addForm.majorId = "";
+  addForm.classId = "";
+  majorOptions.value = [];
+  classOptions.value = [];
+  if (collegeId) {
+    await getMajorOptions(collegeId);
+  }
+};
+
+// 处理专业选择变化
+const handleMajorChange = async (majorId: string) => {
+  addForm.classId = "";
+  classOptions.value = [];
+  if (majorId) {
+    await getClassOptions(majorId);
   }
 };
 </script>

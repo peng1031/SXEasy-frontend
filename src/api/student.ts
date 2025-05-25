@@ -37,9 +37,9 @@ interface StudentBO {
   enrollmentYear: number;
   status?: StudentStatus;
   // 关联信息
+  collegeId?: string;
   majorId?: string;
   classId?: string;
-  collegeId?: string;
 }
 
 // 学生信息（响应体）
@@ -110,9 +110,9 @@ export const addStudent = (data: StudentBO) => {
     enrollmentYear: data.enrollmentYear,
     status: data.status || StudentStatus.STUDYING,
     // 关联信息
+    collegeId: data.collegeId,
     majorId: data.majorId,
-    classId: data.classId,
-    collegeId: data.collegeId
+    classId: data.classId
   };
   return http.request<ApiResponse<StudentVO>>("post", "/student/add", {
     data: requestData
@@ -134,11 +134,7 @@ export const updateStudent = (data: StudentBO) => {
     gender: data.gender,
     phone: data.phone,
     enrollmentYear: data.enrollmentYear,
-    status: data.status,
-    // 关联信息
-    majorId: data.majorId,
-    classId: data.classId,
-    collegeId: data.collegeId
+    status: data.status
   };
   return http.request<ApiResponse<StudentVO>>("post", "/student/update", {
     data: requestData

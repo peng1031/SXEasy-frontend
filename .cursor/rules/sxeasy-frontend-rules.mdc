@@ -1,7 +1,7 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
 # SXEasy Frontend 项目开发规范
 
@@ -131,24 +131,9 @@ const tableData = ref([]);
 ### 表单开发规范
 
 1. **表单验证**: 使用 Element Plus 的表单验证
-```typescript
-const rules = {
-  name: [
-    { required: true, message: "请输入姓名", trigger: "blur" },
-    { min: 2, max: 100, message: "长度在 2 到 100 个字符", trigger: "blur" }
-  ]
-};
-```
 
-2. **级联选择**: 学院 → 专业 → 班级的级联选择模式
-- 选择学院后加载对应专业
-- 选择专业后加载对应班级
-- 使用 [info.ts](mdc:src/api/info.ts) 中的 `getMajorsByCollege` 和 `getClassesByMajor` 接口
+2. **级联选择**: 如有级联请使用级联选择
 
-3. **编辑模式**: 编辑时禁用级联选择字段
-```vue
-<el-select :disabled="dialogType === 'edit'">
-```
 
 ### 路由配置规范
 
@@ -156,16 +141,16 @@ const rules = {
 
 ```typescript
 export default {
-  path: "/module",
+  path: "/page",
   meta: {
     title: "模块名称",
     icon: "图标名称"
   },
   children: [
     {
-      path: "/module/page",
+      path: "/page",
       name: "PageName",
-      component: () => import("@/views/module/page/index.vue"),
+      component: () => import("@/views/page/index.vue"),
       meta: {
         title: "页面标题"
       }
@@ -179,6 +164,7 @@ export default {
 1. **样式文件**: 每个页面对应一个 CSS 文件，放在 `src/style/` 目录下
 2. **样式导入**: 在组件中使用 `@import "@/style/filename.css"`
 3. **响应式设计**: 表格高度自适应窗口大小
+4. **组件采用**: 所有组件使用最新的版本，不要使用弃用组件
 
 ### 错误处理规范
 
@@ -224,7 +210,7 @@ const tableRowClassName = ({ rowIndex }: { rowIndex: number }) => {
 };
 ```
 
-2. **对话框**: 新增/编辑共用一个对话框，通过 `dialogType` 区分
+2. **对话框**: 每个操作有自己的对话框，尽量不共用一个
 3. **操作按钮**: 使用圆形图标按钮，统一的颜色和大小
 
 ## 开发流程
@@ -236,7 +222,7 @@ const tableRowClassName = ({ rowIndex }: { rowIndex: number }) => {
    - 在 `src/style/` 下创建样式文件
 
 2. **接口对接**: 
-   - 先定义 TypeScript 类型
+   - 先定义 JavaScript 类型
    - 实现 API 调用函数
    - 在组件中使用并处理响应
 
