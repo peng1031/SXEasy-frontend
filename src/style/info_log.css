@@ -1,0 +1,125 @@
+.info-log-container {
+  padding: 20px;
+  background-color: #f0f2f5;
+  min-height: calc(100vh - 84px);
+}
+
+.box-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #303133;
+}
+
+.header-operations {
+  display: flex;
+  gap: 10px;
+}
+
+.search-input {
+  width: 200px;
+}
+
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+:deep(.even-row) {
+  background-color: #fafafa;
+}
+
+:deep(.odd-row) {
+  background-color: #ffffff;
+}
+
+:deep(.el-table__row:hover) {
+  background-color: #f5f7fa !important;
+}
+
+:deep(.el-button--link) {
+  padding: 4px 8px;
+}
+
+:deep(.el-button--link .el-icon) {
+  margin-right: 4px;
+}
+
+/* 响应式布局样式 */
+@media screen and (max-width: 1200px) {
+  .search-input {
+    width: 200px;
+  }
+
+  .header-operations {
+    gap: 12px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .info-log-container {
+    padding: 10px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .header-operations {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .search-input {
+    width: 180px;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+}
+
+/* 表格滚动条样式 */
+:deep(.el-table__body-wrapper::-webkit-scrollbar) {
+  width: 6px;
+  height: 6px;
+}
+
+:deep(.el-table__body-wrapper::-webkit-scrollbar-thumb) {
+  background: #c0c4cc;
+  border-radius: 3px;
+}
+
+:deep(.el-table__body-wrapper::-webkit-scrollbar-track) {
+  background: #f5f7fa;
+}
+
+/* 表格内容溢出显示省略号 */
+:deep(.el-table .cell) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 详情对话框样式 */
+:deep(.el-descriptions__body) {
+  background-color: #fff;
+}
+
+.error-msg {
+  color: #f56c6c;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

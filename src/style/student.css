@@ -1,0 +1,36 @@
+.student-container {
+  padding: 20px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-operations {
+  display: flex;
+  gap: 10px;
+}
+
+.search-input {
+  width: 200px;
+}
+
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dialog-form {
+  padding: 20px;
+}
+
+:deep(.even-row) {
+  background-color: #fafafa;
+}
+
+:deep(.odd-row) {
+  background-color: #ffffff;
+}

@@ -29,6 +29,34 @@ const defaultConfig: AxiosRequestConfig = {
   }
 };
 
+// 处理大整数
+const handleBigInt = (data: any): any => {
+  if (data === null || data === undefined) {
+    return data;
+  }
+
+  if (typeof data === "object") {
+    if (Array.isArray(data)) {
+      return data.map(item => handleBigInt(item));
+    }
+
+    const result: any = {};
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        // 处理特定的ID字段
+        if (key.toLowerCase().includes("id") && typeof data[key] === "number") {
+          result[key] = String(data[key]);
+        } else {
+          result[key] = handleBigInt(data[key]);
+        }
+      }
+    }
+    return result;
+  }
+
+  return data;
+};
+
 class PureHttp {
   constructor() {
     this.httpInterceptorsRequest();
@@ -63,8 +91,8 @@ class PureHttp {
         }
 
         // 获取 Sa-Token
-        const tokenName = localStorage.getItem('tokenName');
-        const tokenValue = localStorage.getItem('tokenValue');
+        const tokenName = localStorage.getItem("tokenName");
+        const tokenValue = localStorage.getItem("tokenValue");
         if (tokenName && tokenValue) {
           config.headers[tokenName] = tokenValue;
         }
@@ -87,13 +115,13 @@ class PureHttp {
         // 优先判断post/get等方法是否传入回调，否则执行初始化设置等回调
         if (typeof $config.beforeResponseCallback === "function") {
           $config.beforeResponseCallback(response);
-          return response.data;
+          return handleBigInt(response.data);
         }
         if (PureHttp.initConfig.beforeResponseCallback) {
           PureHttp.initConfig.beforeResponseCallback(response);
-          return response.data;
+          return handleBigInt(response.data);
         }
-        return response.data;
+        return handleBigInt(response.data);
       },
       (error: PureHttpError) => {
         const $error = error;

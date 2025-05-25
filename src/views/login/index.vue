@@ -1,20 +1,20 @@
 <script setup lang="ts">
 import Motion from "./utils/motion";
-import {useRouter} from "vue-router";
-import {message} from "@/utils/message";
-import {loginRules} from "./utils/rule";
-import {reactive, ref, toRaw} from "vue";
-import {debounce} from "@pureadmin/utils";
-import {useNav} from "@/layout/hooks/useNav";
-import {useEventListener} from "@vueuse/core";
-import type {FormInstance} from "element-plus";
-import {useLayout} from "@/layout/hooks/useLayout";
-import {addPathMatch, getTopMenu} from "@/router/utils";
-import {avatar, bg, illustration} from "./utils/static";
-import {useRenderIcon} from "@/components/ReIcon/src/hooks";
-import {useDataThemeChange} from "@/layout/hooks/useDataThemeChange";
-import {getLogin} from "@/api/user";
-import {usePermissionStoreHook} from "@/store/modules/permission";
+import { useRouter } from "vue-router";
+import { message } from "@/utils/message";
+import { loginRules } from "./utils/rule";
+import { reactive, ref, toRaw } from "vue";
+import { debounce } from "@pureadmin/utils";
+import { useNav } from "@/layout/hooks/useNav";
+import { useEventListener } from "@vueuse/core";
+import type { FormInstance } from "element-plus";
+import { useLayout } from "@/layout/hooks/useLayout";
+import { addPathMatch, getTopMenu } from "@/router/utils";
+import { avatar, bg, illustration } from "./utils/static";
+import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { useDataThemeChange } from "@/layout/hooks/useDataThemeChange";
+import { getLogin } from "@/api/user";
+import { usePermissionStoreHook } from "@/store/modules/permission";
 
 import dayIcon from "@/assets/svg/day.svg?component";
 import darkIcon from "@/assets/svg/dark.svg?component";
@@ -58,8 +58,8 @@ const onLogin = async (formEl: FormInstance | undefined) => {
           // 存储 Sa-Token 信息
           const tokenInfo = res.data.data;
           console.log(tokenInfo);
-          localStorage.setItem('tokenName', tokenInfo.tokenName);
-          localStorage.setItem('tokenValue', tokenInfo.tokenValue);
+          localStorage.setItem("tokenName", tokenInfo.tokenName);
+          localStorage.setItem("tokenValue", tokenInfo.tokenValue);
 
           // 全部采取静态路由模式
           usePermissionStoreHook().handleWholeMenus([]);

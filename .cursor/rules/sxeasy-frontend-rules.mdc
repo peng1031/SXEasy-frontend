@@ -1,0 +1,243 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# SXEasy Frontend 项目开发规范
+
+## 项目架构
+
+这是一个基于 Vue 3 + TypeScript + Element Plus + Vite 的前端管理系统项目。
+
+### 技术栈
+- **框架**: Vue 3 (Composition API)
+- **构建工具**: Vite
+- **语言**: TypeScript
+- **UI库**: Element Plus
+- **状态管理**: Pinia
+- **路由**: Vue Router 4
+- **HTTP客户端**: Axios
+- **样式**: SCSS + TailwindCSS
+- **包管理器**: pnpm
+
+### 目录结构
+```
+src/
+├── api/           # API接口定义
+├── views/         # 页面组件
+├── components/    # 公共组件
+├── router/        # 路由配置
+├── store/         # 状态管理
+├── utils/         # 工具函数
+├── style/         # 样式文件
+├── types/         # 类型定义
+├── assets/        # 静态资源
+├── config/        # 配置文件
+├── directives/    # 自定义指令
+├── layout/        # 布局组件
+└── plugins/       # 插件
+```
+
+## 编码规范
+
+### Vue 组件规范
+
+1. **使用 Composition API + `<script setup>`**
+```vue
+<script setup lang="ts">
+import { ref, reactive, onMounted } from "vue";
+// 组件逻辑
+</script>
+```
+
+2. **组件文件命名**: 使用 `index.vue` 作为主组件文件名
+
+3. **响应式数据定义**:
+```typescript
+// 基础数据
+const loading = ref(false);
+const searchQuery = ref("");
+
+// 复杂对象使用 reactive
+const form = reactive<FormType>({
+  name: "",
+  status: ""
+});
+```
+
+### API 接口规范
+
+1. **接口文件组织**: 按业务模块划分，如 [student.ts](mdc:src/api/student.ts), [class.ts](mdc:src/api/class.ts)
+
+2. **HTTP 请求**: 使用统一的 [http工具类](mdc:src/utils/http/index.ts)
+```typescript
+import { http } from "@/utils/http";
+
+export const getStudentList = (params: PageReqDo) => {
+  return http.request<ApiResponse<PageRespDto<StudentVO>>>("get", "/student/list", { params });
+};
+```
+
+3. **类型定义**: 为所有接口定义 TypeScript 类型
+```typescript
+export interface StudentVO {
+  studentNumber: string;
+  name: string;
+  gender: Gender;
+  // ...
+}
+```
+
+### 表格页面开发模式
+
+参考 [学生管理页面](mdc:src/views/userinfo/student/index.vue) 的标准模式：
+
+1. **基础状态管理**:
+```typescript
+// 搜索相关
+const searchQuery = ref("");
+const loading = ref(false);
+
+// 分页相关
+const currentPage = ref(1);
+const pageSize = ref(10);
+const total = ref(0);
+
+// 表格数据
+const tableData = ref([]);
+```
+
+2. **表格配置**:
+- 使用 `border` 边框
+- 设置统一的表头样式
+- 添加 `v-loading` 加载状态
+- 使用 `show-overflow-tooltip` 处理文本溢出
+- 为需要排序的列添加 `sortable` 属性
+
+3. **分页组件**:
+```vue
+<el-pagination
+  :current-page="currentPage"
+  :page-size="pageSize"
+  :page-sizes="[10, 30, 50, 100]"
+  :background="true"
+  layout="total, sizes, prev, pager, next, jumper"
+  :total="Number(total)"
+  @size-change="handleSizeChange"
+  @current-change="handleCurrentChange"
+/>
+```
+
+### 表单开发规范
+
+1. **表单验证**: 使用 Element Plus 的表单验证
+```typescript
+const rules = {
+  name: [
+    { required: true, message: "请输入姓名", trigger: "blur" },
+    { min: 2, max: 100, message: "长度在 2 到 100 个字符", trigger: "blur" }
+  ]
+};
+```
+
+2. **级联选择**: 学院 → 专业 → 班级的级联选择模式
+- 选择学院后加载对应专业
+- 选择专业后加载对应班级
+- 使用 [info.ts](mdc:src/api/info.ts) 中的 `getMajorsByCollege` 和 `getClassesByMajor` 接口
+
+3. **编辑模式**: 编辑时禁用级联选择字段
+```vue
+<el-select :disabled="dialogType === 'edit'">
+```
+
+### 路由配置规范
+
+参考 [userinfo路由模块](mdc:src/router/modules/userinfo.ts):
+
+```typescript
+export default {
+  path: "/module",
+  meta: {
+    title: "模块名称",
+    icon: "图标名称"
+  },
+  children: [
+    {
+      path: "/module/page",
+      name: "PageName",
+      component: () => import("@/views/module/page/index.vue"),
+      meta: {
+        title: "页面标题"
+      }
+    }
+  ]
+};
+```
+
+### 样式规范
+
+1. **样式文件**: 每个页面对应一个 CSS 文件，放在 `src/style/` 目录下
+2. **样式导入**: 在组件中使用 `@import "@/style/filename.css"`
+3. **响应式设计**: 表格高度自适应窗口大小
+
+### 错误处理规范
+
+1. **统一错误处理**:
+```typescript
+try {
+  const res = await apiCall();
+  if (res.code === 200) {
+    // 成功处理
+  } else {
+    ElMessage.error(res.msg || "操作失败");
+  }
+} catch (error: any) {
+  console.error("操作失败:", error);
+  if (error.response?.data) {
+    ElMessage.error(error.response.data.msg || "操作失败");
+  } else {
+    ElMessage.error("操作失败");
+  }
+}
+```
+
+2. **加载状态**: 所有异步操作都要有对应的 loading 状态
+
+### 国际化规范
+
+- 所有用户界面文本使用中文
+- 错误信息、提示信息统一使用中文
+- 按钮文本: "新增"、"编辑"、"删除"、"确定"、"取消"
+
+### 数据处理规范
+
+1. **大整数处理**: HTTP 工具类自动处理大整数转字符串
+2. **分页数据**: 统一使用 `PageReqDo` 和 `PageRespDto` 类型
+3. **排序功能**: 支持表格列排序，转换为后端需要的参数格式
+
+### 组件复用规范
+
+1. **表格行样式**: 使用统一的斑马纹样式
+```typescript
+const tableRowClassName = ({ rowIndex }: { rowIndex: number }) => {
+  return rowIndex % 2 === 0 ? "even-row" : "odd-row";
+};
+```
+
+2. **对话框**: 新增/编辑共用一个对话框，通过 `dialogType` 区分
+3. **操作按钮**: 使用圆形图标按钮，统一的颜色和大小
+
+## 开发流程
+
+1. **新增页面**: 
+   - 在 `src/views/` 下创建对应目录和 `index.vue`
+   - 在 `src/api/` 下创建对应的接口文件
+   - 在 `src/router/modules/` 下配置路由
+   - 在 `src/style/` 下创建样式文件
+
+2. **接口对接**: 
+   - 先定义 TypeScript 类型
+   - 实现 API 调用函数
+   - 在组件中使用并处理响应
+
+3. **测试**: 确保所有功能正常，包括增删改查、分页、搜索、排序等
