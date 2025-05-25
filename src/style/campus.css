@@ -11,16 +11,7 @@
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.title {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.total-tag {
-  font-size: 14px;
+  gap: 10px;
 }
 
 .header-operations {
@@ -29,7 +20,74 @@
 }
 
 .search-input {
+  width: 300px;
+}
+
+.total-tag {
+  margin-left: 10px;
+}
+
+.preview-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 4px;
+}
+
+.image-error {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f7fa;
+  color: #909399;
+  border-radius: 4px;
+}
+
+.view-images {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.view-image {
   width: 200px;
+  height: 200px;
+  border-radius: 4px;
+}
+
+.view-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.view-time {
+  color: #909399;
+  font-size: 14px;
+}
+
+/* 上传组件样式 */
+:deep(.el-upload--picture-card) {
+  width: 100px;
+  height: 100px;
+  line-height: 100px;
+}
+
+:deep(.el-upload-list--picture-card .el-upload-list__item) {
+  width: 100px;
+  height: 100px;
+}
+
+/* 表格样式 */
+.even-row {
+  background-color: #fafafa;
+}
+
+.odd-row {
+  background-color: #ffffff;
 }
 
 .pagination-container {
@@ -38,45 +96,30 @@
   justify-content: flex-end;
 }
 
+/* 对话框样式 */
 .dialog-form {
   padding: 20px;
 }
 
-.content-preview {
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
+/* 查看对话框样式 */
 .view-content {
   padding: 20px;
 }
 
 .view-title {
+  margin: 0 0 20px;
   font-size: 20px;
   font-weight: bold;
-  margin-bottom: 16px;
-  text-align: center;
-}
-
-.view-info {
-  color: #909399;
-  font-size: 14px;
-  margin-bottom: 20px;
-  text-align: center;
 }
 
 .view-body {
-  line-height: 1.8;
+  margin-top: 20px;
+  line-height: 1.6;
   white-space: pre-wrap;
-  word-break: break-all;
-}
-
-:deep(.even-row) {
-  background-color: #fafafa;
-}
-
-:deep(.odd-row) {
-  background-color: #ffffff;
 }

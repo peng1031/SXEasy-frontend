@@ -1,13 +1,13 @@
 <template>
-  <div class="college-container">
+  <div class="place-category-container">
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
-          <span class="title">学院信息管理</span>
+          <span class="title">地点分类管理</span>
           <div class="header-operations">
             <el-input
               v-model="searchQuery"
-              placeholder="搜索学院名称"
+              placeholder="搜索分类名称"
               class="search-input"
               clearable
               @clear="handleSearch"
@@ -18,7 +18,7 @@
               </template>
             </el-input>
             <el-button type="primary" @click="handleAdd">
-              <el-icon><Plus /></el-icon>新增学院
+              <el-icon><Plus /></el-icon>新增分类
             </el-button>
           </div>
         </div>
@@ -39,43 +39,36 @@
       >
         <el-table-column
           prop="name"
-          label="学院名称"
+          label="分类名称"
           min-width="120"
           align="center"
           show-overflow-tooltip
         />
         <el-table-column
-          prop="dean"
-          label="院长姓名"
+          prop="createTime"
+          label="创建时间"
+          min-width="160"
+          align="center"
+          show-overflow-tooltip
+        />
+        <el-table-column
+          prop="createBy"
+          label="创建人"
           min-width="100"
           align="center"
           show-overflow-tooltip
         />
         <el-table-column
-          prop="phone"
-          label="联系电话"
-          min-width="120"
-          align="center"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          prop="email"
-          label="电子邮箱"
+          prop="updateTime"
+          label="更新时间"
           min-width="160"
           align="center"
           show-overflow-tooltip
         />
         <el-table-column
-          prop="campusName"
-          label="所属校区"
-          min-width="120"
-          align="center"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          prop="createdTime"
-          label="创建时间"
-          min-width="160"
+          prop="updateBy"
+          label="更新人"
+          min-width="100"
           align="center"
           show-overflow-tooltip
         />
@@ -115,7 +108,7 @@
     <!-- 新增/编辑对话框 -->
     <el-dialog
       v-model="dialogVisible"
-      :title="dialogType === 'add' ? '新增学院' : '编辑学院'"
+      :title="dialogType === 'add' ? '新增分类' : '编辑分类'"
       width="500px"
       :close-on-click-modal="false"
       destroy-on-close
@@ -127,20 +120,8 @@
         label-width="100px"
         class="dialog-form"
       >
-        <el-form-item label="学院名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入学院名称" />
-        </el-form-item>
-        <el-form-item label="院长姓名" prop="dean">
-          <el-input v-model="form.dean" placeholder="请输入院长姓名" />
-        </el-form-item>
-        <el-form-item label="联系电话" prop="phone">
-          <el-input v-model="form.phone" placeholder="请输入联系电话" />
-        </el-form-item>
-        <el-form-item label="电子邮箱" prop="email">
-          <el-input v-model="form.email" placeholder="请输入电子邮箱" />
-        </el-form-item>
-        <el-form-item label="所属校区" prop="campusName">
-          <el-input v-model="form.campusName" placeholder="请输入所属校区" />
+        <el-form-item label="分类名称" prop="name">
+          <el-input v-model="form.name" placeholder="请输入分类名称" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -163,21 +144,21 @@ import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { Search, Plus, Delete, Edit } from "@element-plus/icons-vue";
 import {
-  getCollegeList,
-  addCollege,
-  deleteCollege,
-  updateCollege
-} from "@/api/college";
+  getPlaceCategoryList,
+  addPlaceCategory,
+  deletePlaceCategory,
+  updatePlaceCategory
+} from "@/api/placecategory";
 import type { FormInstance, FormRules } from "element-plus";
 
 // 类型定义
-interface CollegeForm {
-  collegeId?: string;
+interface CategoryForm {
+  id?: string;
   name: string;
-  dean: string;
-  phone: string;
-  email: string;
-  campusName: string;
+  createTime?: string;
+  createBy?: string;
+  updateTime?: string;
+  updateBy?: string;
 }
 
 // 搜索相关
@@ -199,48 +180,20 @@ const dialogType = ref<"add" | "edit">("add");
 const formRef = ref<FormInstance>();
 
 // 表单数据
-const form = reactive<CollegeForm>({
-  collegeId: "",
+const form = reactive<CategoryForm>({
+  id: "",
   name: "",
-  dean: "",
-  phone: "",
-  email: "",
-  campusName: ""
+  createTime: "",
+  createBy: "",
+  updateTime: "",
+  updateBy: ""
 });
 
 // 表单验证规则
 const rules: FormRules = {
   name: [
-    { required: true, message: "请输入学院名称", trigger: "blur" },
-    { min: 2, max: 255, message: "长度在 2 到 255 个字符", trigger: "blur" }
-  ],
-  dean: [
-    {
-      required: true,
-      max: 100,
-      message: "长度不能超过 100 个字符",
-      trigger: "blur"
-    }
-  ],
-  phone: [
-    {
-      required: true,
-      pattern: /^1[3-9]\d{9}$/,
-      message: "请输入正确的手机号码",
-      trigger: "blur"
-    }
-  ],
-  email: [
-    {
-      required: true,
-      type: "email",
-      message: "请输入正确的邮箱地址",
-      trigger: "blur"
-    }
-  ],
-  campusName: [
-    { required: true, message: "请输入所属校区", trigger: "blur" },
-    { min: 2, max: 255, message: "长度在 2 到 255 个字符", trigger: "blur" }
+    { required: true, message: "请输入分类名称", trigger: "blur" },
+    { min: 2, max: 50, message: "长度在 2 到 50 个字符", trigger: "blur" }
   ]
 };
 
@@ -297,20 +250,20 @@ const handleCurrentChange = (val: number) => {
   getTableData();
 };
 
-// 新增学院
+// 新增分类
 const handleAdd = () => {
   dialogType.value = "add";
   Object.keys(form).forEach(key => {
-    form[key as keyof CollegeForm] = "";
+    form[key as keyof CategoryForm] = "";
   });
   dialogVisible.value = true;
 };
 
-// 编辑学院
+// 编辑分类
 const handleEdit = (row: any) => {
   dialogType.value = "edit";
   Object.keys(form).forEach(key => {
-    form[key as keyof CollegeForm] = row[key] || "";
+    form[key as keyof CategoryForm] = row[key] || "";
   });
   dialogVisible.value = true;
 };
@@ -323,20 +276,16 @@ const handleSubmit = async () => {
       submitLoading.value = true;
       try {
         const formData = {
-          name: form.name.trim(),
-          dean: form.dean?.trim() || null,
-          phone: form.phone?.trim() || null,
-          email: form.email?.trim() || null,
-          campusName: form.campusName.trim()
+          name: form.name.trim()
         };
 
         let res;
         if (dialogType.value === "add") {
-          res = await addCollege(formData);
+          res = await addPlaceCategory(formData);
         } else {
-          res = await updateCollege({
+          res = await updatePlaceCategory({
             ...formData,
-            collegeId: form.collegeId
+            id: form.id
           });
         }
 
@@ -353,7 +302,7 @@ const handleSubmit = async () => {
         }
       } catch (error: any) {
         console.error(
-          dialogType.value === "add" ? "新增学院失败:" : "更新学院失败:",
+          dialogType.value === "add" ? "新增分类失败:" : "更新分类失败:",
           error
         );
         if (error.response?.data) {
@@ -376,16 +325,11 @@ const handleSubmit = async () => {
 const getTableData = async () => {
   loading.value = true;
   try {
-    const data = {
-      pageNum: currentPage.value,
-      pageSize: pageSize.value,
-      name: searchQuery.value || undefined
-    };
-    const res = await getCollegeList(data);
+    const res = await getPlaceCategoryList();
     if (res.code === 200) {
       if (res.data) {
         tableData.value = res.data.list || [];
-        total.value = res.data.total || 0;
+        total.value = Number(res.data.total) || 0;
       } else {
         ElMessage.error("暂无数据");
         tableData.value = [];
@@ -397,7 +341,7 @@ const getTableData = async () => {
       total.value = 0;
     }
   } catch (error: any) {
-    console.error("获取学院列表失败:", error);
+    console.error("获取分类列表失败:", error);
     if (error.response?.data) {
       console.error("错误详情:", error.response.data);
       ElMessage.error(error.response.data.msg || "获取数据失败");
@@ -411,17 +355,17 @@ const getTableData = async () => {
   }
 };
 
-// 删除学院
+// 删除分类
 const handleDelete = async (row: any) => {
   try {
-    await ElMessageBox.confirm(`确定要删除学院"${row.name}"吗？`, "删除确认", {
+    await ElMessageBox.confirm(`确定要删除分类"${row.name}"吗？`, "删除确认", {
       confirmButtonText: "确定",
       cancelButtonText: "取消",
       type: "warning"
     });
 
     row.deleteLoading = true;
-    const res = await deleteCollege(String(row.collegeId));
+    const res = await deletePlaceCategory(String(row.id));
 
     if (res.code === 200) {
       ElMessage.success("删除成功");
@@ -431,7 +375,7 @@ const handleDelete = async (row: any) => {
     }
   } catch (error: any) {
     if (error !== "cancel") {
-      console.error("删除学院失败:", error);
+      console.error("删除分类失败:", error);
       if (error.response?.data) {
         console.error("错误详情:", error.response.data);
         ElMessage.error(error.response.data.msg || "删除失败");
@@ -446,5 +390,45 @@ const handleDelete = async (row: any) => {
 </script>
 
 <style scoped>
-@import url("@/style/college.css");
+.place-category-container {
+  padding: 20px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.header-operations {
+  display: flex;
+  gap: 10px;
+}
+
+.search-input {
+  width: 200px;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.dialog-form {
+  padding: 20px;
+}
+
+:deep(.even-row) {
+  background-color: #fafafa;
+}
+
+:deep(.odd-row) {
+  background-color: #fff;
+}
 </style>

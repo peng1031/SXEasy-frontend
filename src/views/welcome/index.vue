@@ -3,7 +3,7 @@
     <!-- 顶部欢迎区 -->
     <section class="welcome-hero">
       <div class="hero-content">
-        <h1 class="hero-title">欢迎使用 SXEasy</h1>
+        <h1 class="hero-title">欢迎使用 U-SPACE</h1>
         <p class="hero-subtitle">让校园生活更简单、更智能</p>
         <div class="stats-list">
           <div class="stat-card">

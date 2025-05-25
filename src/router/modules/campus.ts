@@ -3,13 +3,12 @@ export default {
   meta: {
     title: "校园指南",
     rank: 4,
-    icon: "material-symbols:pin-drop-outline-rounded"
+    icon: "line-md:compass-loop"
   },
   children: [
     {
       path: "/campus",
       name: "Campus",
-      icon: "material-symbols:pin-drop-outline-rounded",
       component: () => import("@/views/campus/index.vue"),
       meta: {
         title: "校园指南"

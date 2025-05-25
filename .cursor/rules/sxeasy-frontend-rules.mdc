@@ -1,7 +1,7 @@
 ---
 description: 
-globs: 
-alwaysApply: true
+globs: src/views/**/*.vue,src/api/*.js,src/api/*.ts
+alwaysApply: false
 ---
 # SXEasy Frontend 项目开发规范
 
@@ -50,7 +50,7 @@ import { ref, reactive, onMounted } from "vue";
 </script>
 ```
 
-2. **组件文件命名**: 使用 `index.vue` 作为主组件文件名
+2. **组件文件命名**: 使用 `index.vue` 作为主组件文件名 每个@views 下的.vue文件的style写到@style 下对应的css文件中。
 
 3. **响应式数据定义**:
 ```typescript
@@ -161,7 +161,7 @@ export default {
 
 ### 样式规范
 
-1. **样式文件**: 每个页面对应一个 CSS 文件，放在 `src/style/` 目录下
+1. **样式文件**: 每个页面对应一个 CSS 文件，放在 `src/style/` 目录下，每个@views 下的.vue文件的style写到@style 下对应的css文件中。
 2. **样式导入**: 在组件中使用 `@import "@/style/filename.css"`
 3. **响应式设计**: 表格高度自适应窗口大小
 4. **组件采用**: 所有组件使用最新的版本，不要使用弃用组件

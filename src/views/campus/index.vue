@@ -19,11 +19,11 @@
               @keyup.enter="handleSearch"
             >
               <template #prefix>
-                <el-icon><Search /></el-icon>
+                <Icon icon="mdi:magnify" />
               </template>
             </el-input>
             <el-button type="primary" @click="handleAdd">
-              <el-icon><Plus /></el-icon>新增指南
+              <Icon icon="mdi:plus" />新增指南
             </el-button>
           </div>
         </div>
@@ -57,6 +57,12 @@
           </template>
         </el-table-column>
         <el-table-column
+          prop="category"
+          label="分类"
+          width="120"
+          align="center"
+        />
+        <el-table-column
           prop="content"
           label="内容"
           min-width="300"
@@ -68,33 +74,44 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="createdTime"
-          label="创建时间"
-          min-width="160"
+          prop="imageList"
+          label="图片"
+          width="120"
           align="center"
-          show-overflow-tooltip
-        />
+        >
+          <template #default="{ row }">
+            <el-image
+              v-if="row.imageList && row.imageList.length > 0"
+              :src="row.imageList[0]"
+              :preview-src-list="row.imageList"
+              fit="cover"
+              class="preview-image"
+            >
+              <template #error>
+                <div class="image-error">
+                  <Icon icon="mdi:image-off" />
+                </div>
+              </template>
+            </el-image>
+            <span v-else>无图片</span>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="200" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button
-              type="primary"
-              :icon="Edit"
-              circle
-              @click="handleEdit(row)"
-            />
-            <el-button
-              type="success"
-              :icon="View"
-              circle
-              @click="handleView(row)"
-            />
+            <el-button type="primary" circle @click="handleEdit(row)">
+              <Icon icon="mdi:pencil" />
+            </el-button>
+            <el-button type="success" circle @click="handleView(row)">
+              <Icon icon="mdi:eye" />
+            </el-button>
             <el-button
               type="danger"
-              :icon="Delete"
               circle
               :loading="row.deleteLoading"
               @click="handleDelete(row)"
-            />
+            >
+              <Icon icon="mdi:delete" />
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -131,6 +148,9 @@
         <el-form-item label="标题" prop="title">
           <el-input v-model="form.title" placeholder="请输入标题" />
         </el-form-item>
+        <el-form-item label="分类" prop="category">
+          <el-input v-model="form.category" placeholder="请输入分类" />
+        </el-form-item>
         <el-form-item label="内容" prop="content">
           <el-input
             v-model="form.content"
@@ -139,6 +159,25 @@
             placeholder="请输入内容"
             resize="none"
           />
+        </el-form-item>
+        <el-form-item label="图片列表" prop="imageList">
+          <el-upload
+            v-model:file-list="fileList"
+            action="#"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+            :on-change="handleFileChange"
+            :before-upload="beforeUpload"
+            :auto-upload="false"
+            list-type="picture-card"
+            :limit="5"
+            multiple
+          >
+            <el-icon><Icon icon="mdi:plus" /></el-icon>
+          </el-upload>
+          <el-dialog v-model="previewVisible" title="预览">
+            <img :src="previewUrl" alt="Preview" style="width: 100%" />
+          </el-dialog>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -165,9 +204,29 @@
       <div class="view-content">
         <h2 class="view-title">{{ viewData.title }}</h2>
         <div class="view-info">
-          <span>创建时间：{{ viewData.createdTime }}</span>
+          <el-tag size="small" type="info">{{ viewData.category }}</el-tag>
+          <span class="view-time">创建时间：{{ viewData.createdTime }}</span>
         </div>
         <div class="view-body">{{ viewData.content }}</div>
+        <div
+          v-if="viewData.imageList && viewData.imageList.length > 0"
+          class="view-images"
+        >
+          <el-image
+            v-for="(image, index) in viewData.imageList"
+            :key="index"
+            :src="image"
+            :preview-src-list="viewData.imageList"
+            fit="cover"
+            class="view-image"
+          >
+            <template #error>
+              <div class="image-error">
+                <Icon icon="mdi:image-off" />
+              </div>
+            </template>
+          </el-image>
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -176,13 +235,14 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { Search, Plus, Delete, Edit, View } from "@element-plus/icons-vue";
+import { Icon } from "@iconify/vue";
 import {
   getCampusList,
   addCampus,
   deleteCampus,
   updateCampus
 } from "@/api/campus";
+import { uploadManyFile } from "@/api/file-upload";
 import "@/style/campus.css";
 
 // 搜索相关
@@ -208,14 +268,18 @@ const formRef = ref();
 const viewData = reactive({
   title: "",
   content: "",
-  createdTime: ""
+  createdTime: "",
+  category: "",
+  imageList: []
 });
 
 // 表单数据
 const form = reactive({
-  campusId: "",
+  id: "",
   title: "",
-  content: ""
+  content: "",
+  category: "",
+  imageList: []
 });
 
 // 表单验证规则
@@ -224,10 +288,15 @@ const rules = {
     { required: true, message: "请输入标题", trigger: "blur" },
     { min: 2, max: 100, message: "长度在 2 到 100 个字符", trigger: "blur" }
   ],
+  category: [
+    { required: true, message: "请输入分类", trigger: "blur" },
+    { min: 2, max: 50, message: "长度在 2 到 50 个字符", trigger: "blur" }
+  ],
   content: [
     { required: true, message: "请输入内容", trigger: "blur" },
     { min: 10, max: 2000, message: "长度在 10 到 2000 个字符", trigger: "blur" }
-  ]
+  ],
+  imageList: [{ required: false, message: "请输入图片URL", trigger: "blur" }]
 };
 
 // 表格行样式
@@ -273,21 +342,147 @@ const handleCurrentChange = val => {
   getTableData();
 };
 
+// 上传相关
+const fileList = ref([]);
+const previewVisible = ref(false);
+const previewUrl = ref("");
+
+// 处理图片预览
+const handlePictureCardPreview = file => {
+  previewUrl.value = file.url;
+  previewVisible.value = true;
+};
+
+// 处理图片移除
+const handleRemove = (file, fileList) => {
+  form.imageList = fileList.map(file => file.url);
+};
+
+// 处理文件变化
+const handleFileChange = (file, fileList) => {
+  fileList.value = fileList;
+};
+
+// 处理上传
+const handleUpload = async () => {
+  try {
+    const files = fileList.value.map(file => file.raw);
+    const res = await uploadManyFile(files);
+
+    if (res.code === 200) {
+      const urls = res.data;
+      if (urls && urls.length > 0) {
+        // 更新form.imageList
+        form.imageList = [...form.imageList, ...urls];
+        ElMessage.success("上传成功");
+      } else {
+        throw new Error("未获取到上传URL");
+      }
+    } else {
+      ElMessage.error(res.msg || "上传失败");
+    }
+  } catch (error) {
+    console.error("上传失败:", error);
+    if (error.response?.data) {
+      console.error("错误详情:", error.response.data);
+      ElMessage.error(error.response.data.msg || "上传失败");
+    } else {
+      ElMessage.error(error.message || "上传失败");
+    }
+  }
+};
+
+// 上传前校验
+const beforeUpload = file => {
+  const isImage = file.type.startsWith("image/");
+  const isLt100M = file.size / 1024 / 1024 < 100;
+
+  if (!isImage) {
+    ElMessage.error("只能上传图片文件！");
+    return false;
+  }
+  if (!isLt100M) {
+    ElMessage.error("图片大小不能超过 100MB！");
+    return false;
+  }
+  return true;
+};
+
+// 自定义上传
+const customUpload = async ({ file, onSuccess, onError }) => {
+  try {
+    console.log("文件对象:", file);
+
+    if (!file) {
+      throw new Error("文件对象无效");
+    }
+
+    // 创建FormData对象
+    const formData = new FormData();
+    formData.append("files", file); // 使用'files'作为参数名，对应后端的MultipartFile[] files
+
+    // 发送请求
+    const res = await http.request("post", "/file-upload/batch", {
+      data: formData,
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
+
+    if (res.code === 200) {
+      // 返回的是URL数组，我们取第一个URL
+      const urls = res.data;
+      if (urls && urls.length > 0) {
+        fileList.value.push({
+          name: file.name,
+          url: urls[0] // 取第一个URL
+        });
+        form.imageList = fileList.value.map(file => file.url);
+        onSuccess();
+        ElMessage.success("上传成功");
+      } else {
+        throw new Error("未获取到上传URL");
+      }
+    } else {
+      onError(new Error(res.msg || "上传失败"));
+      ElMessage.error(res.msg || "上传失败");
+    }
+  } catch (error) {
+    console.error("上传失败:", error);
+    onError(error);
+    if (error.response?.data) {
+      console.error("错误详情:", error.response.data);
+      ElMessage.error(error.response.data.msg || "上传失败");
+    } else {
+      ElMessage.error(error.message || "上传失败");
+    }
+  }
+};
+
 // 新增指南
 const handleAdd = () => {
   dialogType.value = "add";
-  form.campusId = "";
+  form.id = "";
   form.title = "";
   form.content = "";
+  form.category = "";
+  form.imageList = [];
+  fileList.value = [];
   dialogVisible.value = true;
 };
 
 // 编辑指南
 const handleEdit = row => {
   dialogType.value = "edit";
-  form.campusId = row.campusId;
+  form.id = row.id;
   form.title = row.title;
   form.content = row.content;
+  form.category = row.category;
+  form.imageList = row.imageList || []; // 添加默认空数组
+  fileList.value = (row.imageList || []).map(url => ({
+    name: url.split("/").pop() || url, // 如果split失败，使用完整url
+    url: url
+  }));
   dialogVisible.value = true;
 };
 
@@ -296,6 +491,8 @@ const handleView = row => {
   viewData.title = row.title;
   viewData.content = row.content;
   viewData.createdTime = row.createdTime;
+  viewData.category = row.category;
+  viewData.imageList = row.imageList || [];
   viewDialogVisible.value = true;
 };
 
@@ -306,9 +503,16 @@ const handleSubmit = async () => {
     if (valid) {
       submitLoading.value = true;
       try {
+        // 如果有文件需要上传
+        if (fileList.value.length > 0) {
+          await handleUpload();
+        }
+
         const formData = {
           title: form.title.trim(),
-          content: form.content.trim()
+          content: form.content.trim(),
+          category: form.category.trim(),
+          imageList: form.imageList || [] // 确保imageList不为undefined
         };
 
         let res;
@@ -317,7 +521,7 @@ const handleSubmit = async () => {
         } else {
           res = await updateCampus({
             ...formData,
-            campusId: form.campusId
+            id: form.id
           });
         }
 
@@ -363,6 +567,7 @@ const getTableData = async () => {
       title: searchQuery.value || undefined
     };
     const res = await getCampusList(data);
+    console.log("res:", res);
     if (res.code === 200) {
       if (res.data) {
         tableData.value = res.data.list || [];
@@ -402,7 +607,9 @@ const handleDelete = async row => {
     });
 
     row.deleteLoading = true;
-    const res = await deleteCampus(row.campusId);
+
+    console.log("row:", row);
+    const res = await deleteCampus(row.id);
 
     if (res.code === 200) {
       ElMessage.success("删除成功");
