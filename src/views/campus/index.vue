@@ -84,8 +84,13 @@
               v-if="row.imageList && row.imageList.length > 0"
               :src="row.imageList[0]"
               :preview-src-list="row.imageList"
+              :initial-index="0"
               fit="cover"
               class="preview-image"
+              :preview-teleported="true"
+              :hide-on-click-modal="false"
+              :z-index="3000"
+              :preview-scale="0.75"
             >
               <template #error>
                 <div class="image-error">
@@ -217,8 +222,13 @@
             :key="index"
             :src="image"
             :preview-src-list="viewData.imageList"
+            :initial-index="index"
             fit="cover"
             class="view-image"
+            :preview-teleported="true"
+            :hide-on-click-modal="false"
+            :z-index="3000"
+            :preview-scale="0.8"
           >
             <template #error>
               <div class="image-error">

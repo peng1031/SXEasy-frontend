@@ -4,7 +4,12 @@ import { http } from "@/utils/http";
 export const uploadOneFile = file => {
   const formData = new FormData();
   formData.append("file", file);
-  return http.request("post", "/file-upload", { data: formData });
+  return http.request("post", "/file-upload", {
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data"
+    }
+  });
 };
 
 // 批量上传

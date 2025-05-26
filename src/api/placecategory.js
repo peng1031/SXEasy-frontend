@@ -20,12 +20,12 @@ export const addPlaceCategory = data => {
 
 // 更新地点分类
 export const updatePlaceCategory = data => {
-  return http.request("put", `/place/category/update/${data.id}`, { data });
+  return http.request("put", `/place/category/${data.id}`, { data });
 };
 
 // 删除地点分类
 export const deletePlaceCategory = id => {
-  return http.request("delete", `/place/category/delete/${id}`);
+  return http.request("delete", `/place/category/${id}`);
 };
 
 // 获取建筑物列表

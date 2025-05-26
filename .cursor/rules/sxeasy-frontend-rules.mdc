@@ -70,12 +70,25 @@ const form = reactive<FormType>({
 1. **接口文件组织**: 按业务模块划分，如 [student.ts](mdc:src/api/student.ts), [class.ts](mdc:src/api/class.ts)
 
 2. **HTTP 请求**: 使用统一的 [http工具类](mdc:src/utils/http/index.ts)
-```typescript
-import { http } from "@/utils/http";
+```javascript
+import { http } from "@/utils/request";
 
-export const getStudentList = (params: PageReqDo) => {
-  return http.request<ApiResponse<PageRespDto<StudentVO>>>("get", "/student/list", { params });
+export const getQaList = (data) => {
+  return http.request("post", "/qa/list", { data });
 };
+
+export const addQa = (data) => {
+  return http.request("put", "/qa/add", { data });
+};
+
+export const updateQa = (data) => {
+  return http.request("post", "/qa/update", { data });
+};
+
+export const deleteQa = (id) => {
+  return http.request("delete", `/qa/delete/${id}`);
+};
+
 ```
 
 3. **类型定义**: 为所有接口定义 TypeScript 类型
